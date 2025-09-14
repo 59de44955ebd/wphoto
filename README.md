@@ -53,7 +53,7 @@ We successfully took a picture, and now have a file called 'DSCN6616.JPG' in the
 
 ## Notes
 
-- Command line arguments are parsed from left to right, so any command other than `--list-devices` will only work if it is preceded by a `--device=<YOUR ACTUAL DEVICE>` argument, where `<YOUR ACTUAL DEVICE>` is the device's "friendly name", as reported by the `--list-devices`  command.
+- Command line arguments are evaluated from left to right, so any command other than `--list-devices` will only work if it is preceded by a `--device=<YOUR ACTUAL DEVICE>` argument, where `<YOUR ACTUAL DEVICE>` is the device's "friendly name", as reported by the `--list-devices`  command.
 
 - If execution was successfull, the exit code (%ERRORLEVEL% in CMD) is 0, otherwise it's 23.
 
