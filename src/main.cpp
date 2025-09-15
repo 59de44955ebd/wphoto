@@ -170,5 +170,5 @@ int _cdecl wmain(int argc, wchar_t* argv[])
         CoUninitialize();
     }
 
-    return 1;
+    return res;
 }
