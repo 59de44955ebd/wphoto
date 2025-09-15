@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <strsafe.h>
 
-// globals
+// Globals
 ULONG g_TargetValue = 0;
 wchar_t g_ObjID[MAX_PATH] = L"";
 
@@ -59,9 +59,7 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 		for( i = 1; i < argc; i++ )
 		{
 			key = argv[i];
-			//printf("key: %ws\n", key);
 			value = wcschr(key, L'=');
-			//printf("value: %ws\n", value);
 
 			if (wcscmp(key, L"--list-devices") == 0)
 			{
@@ -76,7 +74,6 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 
 				if (wcscmp(argv[i], L"--device") == 0 && value)
 				{
-					///printf("Friendly Name: %ws\n", value);
 					int device_id = FindDevice(value, &cPnPDeviceIDs);
 					if (device_id >= 0)
 					{

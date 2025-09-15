@@ -1,9 +1,7 @@
 #include "stdafx.h"
 
-
 extern ULONG g_TargetValue;
 extern wchar_t g_ObjID[MAX_PATH];
-
 
 CAtlStringW g_strEventRegistrationCookie;
 
@@ -68,44 +66,7 @@ public:
     {
         if (pEventParameters != NULL)
         {
-            //printf("***************************\n** Device event received **\n***************************\n");
-            //DisplayStringProperty(pEventParameters, WPD_EVENT_PARAMETER_PNP_DEVICE_ID, L"WPD_EVENT_PARAMETER_PNP_DEVICE_ID");
-            //DisplayGuidProperty(pEventParameters, WPD_EVENT_PARAMETER_EVENT_ID, L"WPD_EVENT_PARAMETER_EVENT_ID");
-
 			PWSTR pszValue = NULL;
-
-
-			//printf("WPD_OBJECT_ORIGINAL_FILE_NAME ----------------------------\n");
-			//HRESULT hr = pEventParameters->GetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, &pszValue);
-			//if (SUCCEEDED(hr))
-			//{
-			//	// Get the length of the string value so we
-			//	// can output <empty string value> if one
-			//	// is encountered.
-			//	CAtlStringW strValue;
-			//	strValue = pszValue;
-			//	if (strValue.GetLength() > 0)
-			//	{
-			//		printf("%ws\n", pszValue);
-			//	}
-			//}
-
-
-			//printf("WPD_OBJECT_NAME ----------------------------\n");
-			//pszValue = NULL;
-			//hr = pEventParameters->GetStringValue(WPD_OBJECT_NAME, &pszValue);
-			//if (SUCCEEDED(hr))
-			//{
-			//	// Get the length of the string value so we
-			//	// can output <empty string value> if one
-			//	// is encountered.
-			//	CAtlStringW strValue;
-			//	strValue = pszValue;
-			//	if (strValue.GetLength() > 0)
-			//	{
-			//		printf("%ws\n", pszValue);
-			//	}
-			//}
 
 			pszValue = NULL;
 			if (SUCCEEDED(pEventParameters->GetStringValue(WPD_OBJECT_ID, &pszValue)))
@@ -189,11 +150,6 @@ void RegisterForEventNotifications(IPortableDevice* pDevice)
         pszEventCookie = NULL;
     }
 
-    //if (hr == S_OK)
-    //{
-    //    printf("This application has registered for device event notifications and was returned the registration cookie '%ws'\n", g_strEventRegistrationCookie.GetString());
-    //}
-
     // If a failure occurs, remember to delete the allocated callback object, if one exists.
     if (pCallback != NULL)
     {
@@ -216,11 +172,6 @@ void UnregisterForEventNotifications(IPortableDevice* pDevice)
     {
         printf("! Failed to unregister for device events using registration cookie '%ws', hr = 0x%lx\n",g_strEventRegistrationCookie.GetString(), hr);
     }
-
-    //if (hr == S_OK)
-    //{
-    //    printf("This application used the registration cookie '%ws' to unregister from receiving device event notifications", g_strEventRegistrationCookie.GetString());
-    //}
 
     g_strEventRegistrationCookie = L"";
 }

@@ -70,8 +70,8 @@
     <_ProjectFileVersion>15.0.28307.799</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>Debug\</OutDir>
-    <IntDir>Debug\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -80,8 +80,8 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>Release\</OutDir>
-    <IntDir>Release\</IntDir>
+    <OutDir>$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -94,9 +94,9 @@
       <AdditionalOptions>/GS %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -104,7 +104,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/NXCOMPAT /SAFESEH %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>PortableDeviceGuids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PortableDeviceGuids.lib;Synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -120,9 +120,9 @@
       <AdditionalOptions>/GS %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -130,7 +130,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/NXCOMPAT %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>PortableDeviceGuids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PortableDeviceGuids.lib;Synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -143,7 +143,7 @@
       <AdditionalOptions>/GS %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -151,7 +151,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/NXCOMPAT /SAFESEH %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>PortableDeviceGuids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PortableDeviceGuids.lib;Synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -188,25 +188,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ContentEnumeration.cpp" />
-    <ClCompile Include="ContentTransfer.cpp" />
-    <ClCompile Include="DeviceCapabilities.cpp" />
-    <ClCompile Include="DeviceEnumeration.cpp" />
-    <ClCompile Include="DeviceEvents.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="src\ContentEnumeration.cpp" />
+    <ClCompile Include="src\ContentTransfer.cpp" />
+    <ClCompile Include="src\DeviceCapabilities.cpp" />
+    <ClCompile Include="src\DeviceEnumeration.cpp" />
+    <ClCompile Include="src\DeviceEvents.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CommonFunctions.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\CommonFunctions.h" />
+    <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <ResourceCompile Include="wphoto.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

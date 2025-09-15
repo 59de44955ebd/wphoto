@@ -1,10 +1,3 @@
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-// PARTICULAR PURPOSE.
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-
 #include "stdafx.h"
 
 // Displays a friendly name for a passed in functional
@@ -394,9 +387,8 @@ void ListFunctionalCategories(
             printf("! Failed to get functional categories from the device, hr = 0x%lx\n",hr);
         }
     }
-	//</SnippetCapabilities1>
+
     // Get the number of functional categories found on the device.
-	//<SnippetCapabilities2>
     if (SUCCEEDED(hr))
     {
         hr = pCategories->GetCount(&dwNumCategories);
@@ -433,14 +425,12 @@ void ListFunctionalCategories(
             PropVariantClear(&pv);
         }
     }
-	//</SnippetCapabilities2>
 }
 
 // List supported content types the device supports
 void ListSupportedContentTypes(
     IPortableDevice* pDevice)
 {
-	//</SnippetCapabilities3>
     HRESULT hr = S_OK;
     CComPtr<IPortableDeviceCapabilities>            pCapabilities;
     CComPtr<IPortableDevicePropVariantCollection>   pCategories;
@@ -529,7 +519,6 @@ void ListSupportedContentTypes(
             PropVariantClear(&pv);
         }
     }
-	//</SnippetCapabilities3>
 }
 
 // Determines if a device supports a particular functional category.
@@ -991,7 +980,6 @@ void ListRenderingCapabilityInformation(
 void ListSupportedEvents(
     IPortableDevice* pDevice)
 {
-	//<SnippetCapabilities4>
     HRESULT hr = S_OK;
     CComPtr<IPortableDeviceCapabilities>            pCapabilities;
     CComPtr<IPortableDevicePropVariantCollection>   pEvents;
@@ -1002,7 +990,6 @@ void ListSupportedEvents(
         printf("! A NULL IPortableDevice interface pointer was received\n");
         return;
     }
-	//</SnippetCapabilities4>
 
     // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
     // access the device capabilities-specific methods.
@@ -1013,7 +1000,6 @@ void ListSupportedEvents(
     }
 
     // Get all events supported by the device.
-	//<SnippetCapabilities5>
     if (SUCCEEDED(hr))
     {
         hr = pCapabilities->GetSupportedEvents(&pEvents);
@@ -1022,9 +1008,8 @@ void ListSupportedEvents(
             printf("! Failed to get supported events from the device, hr = 0x%lx\n",hr);
         }
     }
-	//</SnippetCapabilities5>
+
     // Get the number of supported events found on the device.
-	//<SnippetCapabilities6>
     if (SUCCEEDED(hr))
     {
         hr = pEvents->GetCount(&dwNumEvents);
@@ -1063,5 +1048,4 @@ void ListSupportedEvents(
             PropVariantClear(&pv);
         }
     }
-	//</SnippetCapabilities6>
 }
