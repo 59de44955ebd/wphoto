@@ -57,7 +57,7 @@ We successfully took a picture, and now have a file called 'DSCN6616.JPG' in the
 
 - If execution was successfull, the exit code (%ERRORLEVEL% in CMD) is 0, otherwise it's 23.
 
-- The file-based commands don't show/use real filenames (like the 'DSCN6616.JPG' in the sample session above), but instead some short and unique internal file IDs.
+- The file-based commands `--list-files`, `--download-file=FILE`, `--delete-file=FILE` and `--download-and-delete-file=FILE` don't show/use real filenames (like the 'DSCN6616.JPG' in the sample session above), but instead unique internal file IDs.
 
 - `wphoto` is meant for digital cameras, not for smartphones. But in particular, don't try to run `--list-files` with a smartphone. This command tries to list the complete public storage (directories and files), which can be a lot of stuff in case of a smartphone. The scenario it's actually meant for is a digital camera with a flat storage, containing hardly anything. I guess, in those situations where you want to take pictures programmatically (and then delete them from camera storage), it makes sense to have an almost empty storage on the camera in the first place.
 
