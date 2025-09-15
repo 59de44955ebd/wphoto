@@ -355,19 +355,19 @@ void DisplayContentTypes(
 }
 
 // List all functional categories on the device
-void ListFunctionalCategories(
+BOOL ListFunctionalCategories(
     IPortableDevice* pDevice)
 {
-	//<SnippetCapabilities1>
     HRESULT hr = S_OK;
     CComPtr<IPortableDeviceCapabilities>            pCapabilities;
     CComPtr<IPortableDevicePropVariantCollection>   pCategories;
     DWORD dwNumCategories = 0;
+	BOOL ok = FALSE;
 
     if (pDevice == NULL)
     {
         printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
+        return FALSE;
     }
 
     // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
@@ -403,6 +403,7 @@ void ListFunctionalCategories(
     // Loop through each functional category and display its name
     if (SUCCEEDED(hr))
     {
+		ok = TRUE;
         for (DWORD dwIndex = 0; dwIndex < dwNumCategories; dwIndex++)
         {
             PROPVARIANT pv = {0};
@@ -425,101 +426,102 @@ void ListFunctionalCategories(
             PropVariantClear(&pv);
         }
     }
+	return ok;
 }
 
 // List supported content types the device supports
-void ListSupportedContentTypes(
-    IPortableDevice* pDevice)
-{
-    HRESULT hr = S_OK;
-    CComPtr<IPortableDeviceCapabilities>            pCapabilities;
-    CComPtr<IPortableDevicePropVariantCollection>   pCategories;
-    DWORD dwNumCategories   = 0;
-
-    if (pDevice == NULL)
-    {
-        printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
-    }
-
-    // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
-    // access the device capabilities-specific methods.
-    hr = pDevice->Capabilities(&pCapabilities);
-    if (FAILED(hr))
-    {
-        printf("! Failed to get IPortableDeviceCapabilities from IPortableDevice, hr = 0x%lx\n",hr);
-    }
-
-    // Get all functional categories supported by the device.
-    // We will use these categories to enumerate functional objects
-    // that fall within them.
-    if (SUCCEEDED(hr))
-    {
-        hr = pCapabilities->GetFunctionalCategories(&pCategories);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get functional categories from the device, hr = 0x%lx\n",hr);
-        }
-    }
-
-    // Get the number of functional categories found on the device.
-    if (SUCCEEDED(hr))
-    {
-        hr = pCategories->GetCount(&dwNumCategories);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get number of functional categories, hr = 0x%lx\n",hr);
-        }
-    }
-
-    printf("\n%d Functional Categories Found on the device\n\n", dwNumCategories);
-
-    // Loop through each functional category and display its name and supported content types.
-    if (SUCCEEDED(hr))
-    {
-        for (DWORD dwIndex = 0; dwIndex < dwNumCategories; dwIndex++)
-        {
-            PROPVARIANT pv = {0};
-            PropVariantInit(&pv);
-            hr = pCategories->GetAt(dwIndex, &pv);
-            if (SUCCEEDED(hr))
-            {
-                // We have a functional category.  It is assumed that
-                // functional categories are returned as VT_CLSID
-                // VarTypes.
-
-                if ((pv.puuid != NULL)      &&
-                    (pv.vt    == VT_CLSID))
-                {
-                    // Display the functional category name
-                    printf("Functional Category: ");
-                    DisplayFunctionalCategory(*pv.puuid);
-                    printf("\n");
-
-                    // Display the content types supported for this category
-                    CComPtr<IPortableDevicePropVariantCollection> pContentTypes;
-                    hr = pCapabilities->GetSupportedContentTypes(*pv.puuid, &pContentTypes);
-                    if (SUCCEEDED(hr))
-                    {
-                        printf("Supported Content Types: ");
-                        DisplayContentTypes(pContentTypes);
-                        printf("\n\n");
-                    }
-                    else
-                    {
-                        printf("! Failed to get supported content types from the device, hr = 0x%lx\n",hr);
-                    }
-                }
-                else
-                {
-                    printf("! Invalid functional category found\n");
-                }
-            }
-
-            PropVariantClear(&pv);
-        }
-    }
-}
+//void ListSupportedContentTypes(
+//    IPortableDevice* pDevice)
+//{
+//    HRESULT hr = S_OK;
+//    CComPtr<IPortableDeviceCapabilities>            pCapabilities;
+//    CComPtr<IPortableDevicePropVariantCollection>   pCategories;
+//    DWORD dwNumCategories   = 0;
+//
+//    if (pDevice == NULL)
+//    {
+//        printf("! A NULL IPortableDevice interface pointer was received\n");
+//        return;
+//    }
+//
+//    // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
+//    // access the device capabilities-specific methods.
+//    hr = pDevice->Capabilities(&pCapabilities);
+//    if (FAILED(hr))
+//    {
+//        printf("! Failed to get IPortableDeviceCapabilities from IPortableDevice, hr = 0x%lx\n",hr);
+//    }
+//
+//    // Get all functional categories supported by the device.
+//    // We will use these categories to enumerate functional objects
+//    // that fall within them.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pCapabilities->GetFunctionalCategories(&pCategories);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get functional categories from the device, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    // Get the number of functional categories found on the device.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pCategories->GetCount(&dwNumCategories);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get number of functional categories, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    printf("\n%d Functional Categories Found on the device\n\n", dwNumCategories);
+//
+//    // Loop through each functional category and display its name and supported content types.
+//    if (SUCCEEDED(hr))
+//    {
+//        for (DWORD dwIndex = 0; dwIndex < dwNumCategories; dwIndex++)
+//        {
+//            PROPVARIANT pv = {0};
+//            PropVariantInit(&pv);
+//            hr = pCategories->GetAt(dwIndex, &pv);
+//            if (SUCCEEDED(hr))
+//            {
+//                // We have a functional category.  It is assumed that
+//                // functional categories are returned as VT_CLSID
+//                // VarTypes.
+//
+//                if ((pv.puuid != NULL)      &&
+//                    (pv.vt    == VT_CLSID))
+//                {
+//                    // Display the functional category name
+//                    printf("Functional Category: ");
+//                    DisplayFunctionalCategory(*pv.puuid);
+//                    printf("\n");
+//
+//                    // Display the content types supported for this category
+//                    CComPtr<IPortableDevicePropVariantCollection> pContentTypes;
+//                    hr = pCapabilities->GetSupportedContentTypes(*pv.puuid, &pContentTypes);
+//                    if (SUCCEEDED(hr))
+//                    {
+//                        printf("Supported Content Types: ");
+//                        DisplayContentTypes(pContentTypes);
+//                        printf("\n\n");
+//                    }
+//                    else
+//                    {
+//                        printf("! Failed to get supported content types from the device, hr = 0x%lx\n",hr);
+//                    }
+//                }
+//                else
+//                {
+//                    printf("! Invalid functional category found\n");
+//                }
+//            }
+//
+//            PropVariantClear(&pv);
+//        }
+//    }
+//}
 
 // Determines if a device supports a particular functional category.
 BOOL SupportsFunctionalCategory(
@@ -603,66 +605,66 @@ BOOL SupportsFunctionalCategory(
 }
 
 // Determines if a device supports a particular command.
-BOOL SupportsCommand(
-    IPortableDevice*    pDevice,
-    REFPROPERTYKEY      keyCommand)
-{
-    CComPtr<IPortableDeviceCapabilities>    pCapabilities;
-    CComPtr<IPortableDeviceKeyCollection>   pCommands;
-    BOOL  bSupported      = FALSE;
-    DWORD dwNumCommands   = 0;
-
-    // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
-    // access the device capabilities-specific methods.
-    HRESULT hr = pDevice->Capabilities(&pCapabilities);
-    if (FAILED(hr))
-    {
-        printf("! Failed to get IPortableDeviceCapabilities from IPortableDevice, hr = 0x%lx\n",hr);
-    }
-
-    // Get all commands supported by the device.
-    // We will use these commands to search for a particular functional category.
-    if (SUCCEEDED(hr))
-    {
-        hr = pCapabilities->GetSupportedCommands(&pCommands);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get supported commands from the device, hr = 0x%lx\n",hr);
-        }
-    }
-
-    // Get the number of supported commands found on the device.
-    if (SUCCEEDED(hr))
-    {
-        hr = pCommands->GetCount(&dwNumCommands);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get number of supported commands, hr = 0x%lx\n",hr);
-        }
-    }
-
-    // Loop through each functional category and find the passed in category
-    if (SUCCEEDED(hr))
-    {
-        for (DWORD dwIndex = 0; dwIndex < dwNumCommands; dwIndex++)
-        {
-            PROPERTYKEY key = WPD_PROPERTY_NULL;
-            hr = pCommands->GetAt(dwIndex, &key);
-            if (SUCCEEDED(hr))
-            {
-                bSupported = IsEqualPropertyKey(keyCommand, key);
-            }
-
-            // If the device supports the category, exit the for loop.
-            if (bSupported == TRUE)
-            {
-                break;
-            }
-        }
-    }
-
-    return bSupported;
-}
+//BOOL SupportsCommand(
+//    IPortableDevice*    pDevice,
+//    REFPROPERTYKEY      keyCommand)
+//{
+//    CComPtr<IPortableDeviceCapabilities>    pCapabilities;
+//    CComPtr<IPortableDeviceKeyCollection>   pCommands;
+//    BOOL  bSupported      = FALSE;
+//    DWORD dwNumCommands   = 0;
+//
+//    // Get an IPortableDeviceCapabilities interface from the IPortableDevice interface to
+//    // access the device capabilities-specific methods.
+//    HRESULT hr = pDevice->Capabilities(&pCapabilities);
+//    if (FAILED(hr))
+//    {
+//        printf("! Failed to get IPortableDeviceCapabilities from IPortableDevice, hr = 0x%lx\n",hr);
+//    }
+//
+//    // Get all commands supported by the device.
+//    // We will use these commands to search for a particular functional category.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pCapabilities->GetSupportedCommands(&pCommands);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get supported commands from the device, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    // Get the number of supported commands found on the device.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pCommands->GetCount(&dwNumCommands);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get number of supported commands, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    // Loop through each functional category and find the passed in category
+//    if (SUCCEEDED(hr))
+//    {
+//        for (DWORD dwIndex = 0; dwIndex < dwNumCommands; dwIndex++)
+//        {
+//            PROPERTYKEY key = WPD_PROPERTY_NULL;
+//            hr = pCommands->GetAt(dwIndex, &key);
+//            if (SUCCEEDED(hr))
+//            {
+//                bSupported = IsEqualPropertyKey(keyCommand, key);
+//            }
+//
+//            // If the device supports the category, exit the for loop.
+//            if (bSupported == TRUE)
+//            {
+//                break;
+//            }
+//        }
+//    }
+//
+//    return bSupported;
+//}
 
 // Reads the WPD_RENDERING_INFORMATION_PROFILES properties on the device.
 HRESULT ReadProfileInformationProperties(

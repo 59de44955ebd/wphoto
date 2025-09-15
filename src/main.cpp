@@ -8,20 +8,20 @@ wchar_t g_ObjID[MAX_PATH] = L"";
 // Device enumeration
 DWORD EnumerateAllDevices();
 int FindDevice(wchar_t* friendlyName, DWORD* cPnPDeviceIDs);
-void SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurrentDevice);
+BOOL SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurrentDevice);
 
 // Device capabilities
-void ListFunctionalCategories(IPortableDevice* pDevice);
+BOOL ListFunctionalCategories(IPortableDevice* pDevice);
 
 // Content enumeration
-void EnumerateAllContent(IPortableDevice* pDevice);
+BOOL EnumerateAllContent(IPortableDevice* pDevice);
 BOOL TakePicture(IPortableDevice* pDevice);
 
 // Content transfer
 BOOL TransferContentFromDevice(IPortableDevice* pDevice, WCHAR* szSelection);
 
 // Content deletion
-void DeleteContentFromDevice(IPortableDevice* pDevice, WCHAR* szSelection);
+BOOL DeleteContentFromDevice(IPortableDevice* pDevice, WCHAR* szSelection);
 
 // Device events
 //void ListSupportedEvents(IPortableDevice* pDevice);
@@ -41,7 +41,7 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 		return 0;
 	}
 
-	int res = 23;
+	int res = 23; // For now only a single generic error code
 
     // Enable the heap manager to terminate the process on heap error.
     (void)HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
@@ -77,32 +77,35 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 					int device_id = FindDevice(value, &cPnPDeviceIDs);
 					if (device_id >= 0)
 					{
-						SelectDevice(&pIPortableDevice, cPnPDeviceIDs, (UINT)device_id);
+						if (!SelectDevice(&pIPortableDevice, cPnPDeviceIDs, (UINT)device_id))
+							break;
 					}
 				}
 				if (wcscmp(argv[i], L"--download-file") == 0 && value)
 				{
 					if (pIPortableDevice != NULL)
 					{
-						TransferContentFromDevice(pIPortableDevice, value);
-						res = 0;
+						if (TransferContentFromDevice(pIPortableDevice, value))
+							res = 0;
 					}
 				}
 				if (wcscmp(argv[i], L"--delete-file") == 0 && value)
 				{
 					if (pIPortableDevice != NULL)
 					{
-						DeleteContentFromDevice(pIPortableDevice, value);
-						res = 0;
+						if (DeleteContentFromDevice(pIPortableDevice, value))
+							res = 0;
 					}
 				}
 				if (wcscmp(argv[i], L"--download-and-delete-file") == 0 && value)
 				{
 					if (pIPortableDevice != NULL)
 					{
-						TransferContentFromDevice(pIPortableDevice, value);
-						DeleteContentFromDevice(pIPortableDevice, value);
-						res = 0;
+						if (TransferContentFromDevice(pIPortableDevice, value))
+						{
+							if (DeleteContentFromDevice(pIPortableDevice, value))
+								res = 0;
+						}
 					}
 				}
 			}
@@ -110,16 +113,16 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 			{
 				if (pIPortableDevice != NULL)
 				{
-					ListFunctionalCategories(pIPortableDevice);
-					res = 0;
+					if(ListFunctionalCategories(pIPortableDevice))
+						res = 0;
 				}
 			}
 			else if (wcscmp(argv[i], L"--capture-image") == 0)
 			{
 				if (pIPortableDevice != NULL)
 				{
-					TakePicture(pIPortableDevice);
-					res = 0;
+					if (TakePicture(pIPortableDevice))
+						res = 0;
 				}
 			}
 
@@ -146,8 +149,8 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 
 						if (g_ObjID[0] && TransferContentFromDevice(pIPortableDevice, g_ObjID))
 						{
-							DeleteContentFromDevice(pIPortableDevice, g_ObjID);
-							res = 0;
+							if (DeleteContentFromDevice(pIPortableDevice, g_ObjID))
+								res = 0;
 						}
 					}
 				}
@@ -157,8 +160,8 @@ int _cdecl wmain(int argc, wchar_t* argv[])
 			{
 				if (pIPortableDevice != NULL)
 				{
-					EnumerateAllContent(pIPortableDevice);
-					res = 0;
+					if (EnumerateAllContent(pIPortableDevice))
+						res = 0;
 				}
 			}
 		}

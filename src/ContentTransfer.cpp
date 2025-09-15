@@ -274,21 +274,21 @@ BOOL TransferContentFromDevice(
 
 
 // Deletes a selected object from the device.
-void DeleteContentFromDevice(
+BOOL DeleteContentFromDevice(
     IPortableDevice* pDevice,
 	WCHAR* szSelection
 )
 {
     HRESULT                                       hr               = S_OK;
-    //WCHAR                                         szSelection[81]  = {0};
     CComPtr<IPortableDeviceContent>               pContent;
     CComPtr<IPortableDevicePropVariantCollection> pObjectsToDelete;
     CComPtr<IPortableDevicePropVariantCollection> pObjectsFailedToDelete;
+	BOOL ok = FALSE;
 
     if (pDevice == NULL)
     {
         printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
+        return FALSE;
     }
 
     // 1) get an IPortableDeviceContent interface from the IPortableDevice interface to
@@ -343,6 +343,7 @@ void DeleteContentFromDevice(
                             if (hr == S_OK)
                             {
                                 printf("The object '%ws' was deleted from the device.\n", szSelection);
+								ok = TRUE;
                             }
 
                             // An S_FALSE return lets the caller know that the deletion failed.
@@ -382,288 +383,289 @@ void DeleteContentFromDevice(
             printf("! Failed to CoCreateInstance CLSID_PortableDevicePropVariantCollection, hr = 0x%lx\n",hr);
         }
     }
+	return ok;
 }
 
 
 // Moves a selected object (which is already on the device) to another location on the device.
-void MoveContentAlreadyOnDevice(
-    IPortableDevice* pDevice)
-{
-    HRESULT                                       hr                              = S_OK;
-    WCHAR                                         szSelection[81]                 = {0};
-    WCHAR                                         szDestinationFolderObjectID[81] = {0};
-    CComPtr<IPortableDeviceContent>               pContent;
-    CComPtr<IPortableDevicePropVariantCollection> pObjectsToMove;
-    CComPtr<IPortableDevicePropVariantCollection> pObjectsFailedToMove;
+//void MoveContentAlreadyOnDevice(
+//    IPortableDevice* pDevice)
+//{
+//    HRESULT                                       hr                              = S_OK;
+//    WCHAR                                         szSelection[81]                 = {0};
+//    WCHAR                                         szDestinationFolderObjectID[81] = {0};
+//    CComPtr<IPortableDeviceContent>               pContent;
+//    CComPtr<IPortableDevicePropVariantCollection> pObjectsToMove;
+//    CComPtr<IPortableDevicePropVariantCollection> pObjectsFailedToMove;
+//
+//    if (pDevice == NULL)
+//    {
+//        printf("! A NULL IPortableDevice interface pointer was received\n");
+//        return;
+//    }
+//
+//    // Check if the device supports the move command needed to perform this operation
+//    if (SupportsCommand(pDevice, WPD_COMMAND_OBJECT_MANAGEMENT_MOVE_OBJECTS) == FALSE)
+//    {
+//        printf("! This device does not support the move operation (i.e. The WPD_COMMAND_OBJECT_MANAGEMENT_MOVE_OBJECTS command)\n");
+//        return;
+//    }
+//
+//    // Prompt user to enter an object identifier on the device to move.
+//    printf("Enter the identifier of the object you wish to move.\n>");
+//    hr = StringCbGetsW(szSelection,sizeof(szSelection));
+//    if (FAILED(hr))
+//    {
+//        printf("An invalid object identifier was specified, aborting content moving\n");
+//    }
+//
+//    // Prompt user to enter an object identifier on the device to move.
+//    printf("Enter the identifier of the object you wish to move '%ws' to.\n>", szSelection);
+//    hr = StringCbGetsW(szDestinationFolderObjectID,sizeof(szDestinationFolderObjectID));
+//    if (FAILED(hr))
+//    {
+//        printf("An invalid object identifier was specified, aborting content moving\n");
+//    }
+//
+//    // 1) get an IPortableDeviceContent interface from the IPortableDevice interface to
+//    // access the content-specific methods.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pDevice->Content(&pContent);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get IPortableDeviceContent from IPortableDevice, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    // 2) CoCreate an IPortableDevicePropVariantCollection interface to hold the the object identifiers
+//    // to move.
+//    //
+//    // NOTE: This is a collection interface so more than 1 object can be moved at a time.
+//    //       This sample only moves a single object.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection,
+//                              NULL,
+//                              CLSCTX_INPROC_SERVER,
+//                              IID_PPV_ARGS(&pObjectsToMove));
+//        if (SUCCEEDED(hr))
+//        {
+//            if (pObjectsToMove != NULL)
+//            {
+//                PROPVARIANT pv = {0};
+//                PropVariantInit(&pv);
+//
+//                // Initialize a PROPVARIANT structure with the object identifier string
+//                // that the user selected above. Notice we are allocating memory for the
+//                // PWSTR value.  This memory will be freed when PropVariantClear() is
+//                // called below.
+//                pv.vt      = VT_LPWSTR;
+//                pv.pwszVal = AtlAllocTaskWideString(szSelection);
+//                if (pv.pwszVal != NULL)
+//                {
+//                    // Add the object identifier to the objects-to-move list
+//                    // (We are only moving 1 in this example)
+//                    hr = pObjectsToMove->Add(&pv);
+//                    if (SUCCEEDED(hr))
+//                    {
+//                        // Attempt to move the object on the device
+//                        hr = pContent->Move(pObjectsToMove,              // Object(s) to move
+//                                            szDestinationFolderObjectID, // Folder to move to
+//                                            NULL);                       // Object(s) that failed to delete (we are only moving 1, so we can pass NULL here)
+//                        if (SUCCEEDED(hr))
+//                        {
+//                            // An S_OK return lets the caller know that the deletion was successful
+//                            if (hr == S_OK)
+//                            {
+//                                printf("The object '%ws' was moved on the device.\n", szSelection);
+//                            }
+//
+//                            // An S_FALSE return lets the caller know that the move failed.
+//                            // The caller should check the returned IPortableDevicePropVariantCollection
+//                            // for a list of object identifiers that failed to be moved.
+//                            else
+//                            {
+//                                printf("The object '%ws' failed to be moved on the device.\n", szSelection);
+//                            }
+//                        }
+//                        else
+//                        {
+//                            printf("! Failed to move an object on the device, hr = 0x%lx\n",hr);
+//                        }
+//                    }
+//                    else
+//                    {
+//                        printf("! Failed to move an object on the device because we could no add the object identifier string to the IPortableDevicePropVariantCollection, hr = 0x%lx\n",hr);
+//                    }
+//                }
+//                else
+//                {
+//                    hr = E_OUTOFMEMORY;
+//                    printf("! Failed to move an object on the device because we could no allocate memory for the object identifier string, hr = 0x%lx\n",hr);
+//                }
+//
+//                // Free any allocated values in the PROPVARIANT before exiting
+//                PropVariantClear(&pv);
+//            }
+//            else
+//            {
+//                printf("! Failed to move an object from the device because we were returned a NULL IPortableDevicePropVariantCollection interface pointer, hr = 0x%lx\n",hr);
+//            }
+//        }
+//        else
+//        {
+//            printf("! Failed to CoCreateInstance CLSID_PortableDevicePropVariantCollection, hr = 0x%lx\n",hr);
+//        }
+//    }
+//}
 
-    if (pDevice == NULL)
-    {
-        printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
-    }
 
-    // Check if the device supports the move command needed to perform this operation
-    if (SupportsCommand(pDevice, WPD_COMMAND_OBJECT_MANAGEMENT_MOVE_OBJECTS) == FALSE)
-    {
-        printf("! This device does not support the move operation (i.e. The WPD_COMMAND_OBJECT_MANAGEMENT_MOVE_OBJECTS command)\n");
-        return;
-    }
-
-    // Prompt user to enter an object identifier on the device to move.
-    printf("Enter the identifier of the object you wish to move.\n>");
-    hr = StringCbGetsW(szSelection,sizeof(szSelection));
-    if (FAILED(hr))
-    {
-        printf("An invalid object identifier was specified, aborting content moving\n");
-    }
-
-    // Prompt user to enter an object identifier on the device to move.
-    printf("Enter the identifier of the object you wish to move '%ws' to.\n>", szSelection);
-    hr = StringCbGetsW(szDestinationFolderObjectID,sizeof(szDestinationFolderObjectID));
-    if (FAILED(hr))
-    {
-        printf("An invalid object identifier was specified, aborting content moving\n");
-    }
-
-    // 1) get an IPortableDeviceContent interface from the IPortableDevice interface to
-    // access the content-specific methods.
-    if (SUCCEEDED(hr))
-    {
-        hr = pDevice->Content(&pContent);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get IPortableDeviceContent from IPortableDevice, hr = 0x%lx\n",hr);
-        }
-    }
-
-    // 2) CoCreate an IPortableDevicePropVariantCollection interface to hold the the object identifiers
-    // to move.
-    //
-    // NOTE: This is a collection interface so more than 1 object can be moved at a time.
-    //       This sample only moves a single object.
-    if (SUCCEEDED(hr))
-    {
-        hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection,
-                              NULL,
-                              CLSCTX_INPROC_SERVER,
-                              IID_PPV_ARGS(&pObjectsToMove));
-        if (SUCCEEDED(hr))
-        {
-            if (pObjectsToMove != NULL)
-            {
-                PROPVARIANT pv = {0};
-                PropVariantInit(&pv);
-
-                // Initialize a PROPVARIANT structure with the object identifier string
-                // that the user selected above. Notice we are allocating memory for the
-                // PWSTR value.  This memory will be freed when PropVariantClear() is
-                // called below.
-                pv.vt      = VT_LPWSTR;
-                pv.pwszVal = AtlAllocTaskWideString(szSelection);
-                if (pv.pwszVal != NULL)
-                {
-                    // Add the object identifier to the objects-to-move list
-                    // (We are only moving 1 in this example)
-                    hr = pObjectsToMove->Add(&pv);
-                    if (SUCCEEDED(hr))
-                    {
-                        // Attempt to move the object on the device
-                        hr = pContent->Move(pObjectsToMove,              // Object(s) to move
-                                            szDestinationFolderObjectID, // Folder to move to
-                                            NULL);                       // Object(s) that failed to delete (we are only moving 1, so we can pass NULL here)
-                        if (SUCCEEDED(hr))
-                        {
-                            // An S_OK return lets the caller know that the deletion was successful
-                            if (hr == S_OK)
-                            {
-                                printf("The object '%ws' was moved on the device.\n", szSelection);
-                            }
-
-                            // An S_FALSE return lets the caller know that the move failed.
-                            // The caller should check the returned IPortableDevicePropVariantCollection
-                            // for a list of object identifiers that failed to be moved.
-                            else
-                            {
-                                printf("The object '%ws' failed to be moved on the device.\n", szSelection);
-                            }
-                        }
-                        else
-                        {
-                            printf("! Failed to move an object on the device, hr = 0x%lx\n",hr);
-                        }
-                    }
-                    else
-                    {
-                        printf("! Failed to move an object on the device because we could no add the object identifier string to the IPortableDevicePropVariantCollection, hr = 0x%lx\n",hr);
-                    }
-                }
-                else
-                {
-                    hr = E_OUTOFMEMORY;
-                    printf("! Failed to move an object on the device because we could no allocate memory for the object identifier string, hr = 0x%lx\n",hr);
-                }
-
-                // Free any allocated values in the PROPVARIANT before exiting
-                PropVariantClear(&pv);
-            }
-            else
-            {
-                printf("! Failed to move an object from the device because we were returned a NULL IPortableDevicePropVariantCollection interface pointer, hr = 0x%lx\n",hr);
-            }
-        }
-        else
-        {
-            printf("! Failed to CoCreateInstance CLSID_PortableDevicePropVariantCollection, hr = 0x%lx\n",hr);
-        }
-    }
-}
-
-
-HRESULT GetRequiredPropertiesForFolder(
-    PCWSTR                  pszParentObjectID,
-    PCWSTR                  pszFolderName,
-    IPortableDeviceValues** ppObjectProperties)
-{
-    CComPtr<IPortableDeviceValues> pObjectProperties;
-
-    // CoCreate an IPortableDeviceValues interface to hold the the object information
-    HRESULT hr = CoCreateInstance(CLSID_PortableDeviceValues,
-                                  NULL,
-                                  CLSCTX_INPROC_SERVER,
-                                  IID_PPV_ARGS(&pObjectProperties));
-    if (SUCCEEDED(hr))
-    {
-        if (pObjectProperties != NULL)
-        {
-            // Set the WPD_OBJECT_PARENT_ID
-            if (SUCCEEDED(hr))
-            {
-                hr = pObjectProperties->SetStringValue(WPD_OBJECT_PARENT_ID, pszParentObjectID);
-                if (FAILED(hr))
-                {
-                    printf("! Failed to set WPD_OBJECT_PARENT_ID, hr = 0x%lx\n",hr);
-                }
-            }
-
-            // Set the WPD_OBJECT_NAME.
-            if (SUCCEEDED(hr))
-            {
-                hr = pObjectProperties->SetStringValue(WPD_OBJECT_NAME, pszFolderName);
-                if (FAILED(hr))
-                {
-                    printf("! Failed to set WPD_OBJECT_NAME, hr = 0x%lx\n",hr);
-                }
-            }
-
-            // Set the WPD_OBJECT_CONTENT_TYPE to WPD_CONTENT_TYPE_FOLDER because we are
-            // creating contact content on the device.
-            if (SUCCEEDED(hr))
-            {
-                hr = pObjectProperties->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, WPD_CONTENT_TYPE_FOLDER);
-                if (FAILED(hr))
-                {
-                    printf("! Failed to set WPD_OBJECT_CONTENT_TYPE to WPD_CONTENT_TYPE_FOLDER, hr = 0x%lx\n",hr);
-                }
-            }
-
-            // If everything was successful above, QI for the IPortableDeviceValues to return
-            // to the caller.  A temporary CComPtr IPortableDeviceValues was used for easy cleanup
-            // in case of a failure.
-            if (SUCCEEDED(hr))
-            {
-                hr = pObjectProperties->QueryInterface(IID_PPV_ARGS(ppObjectProperties));
-                if (FAILED(hr))
-                {
-                    printf("! Failed to QueryInterface for IPortableDeviceValues, hr = 0x%lx\n",hr);
-                }
-            }
-        }
-        else
-        {
-            hr = E_UNEXPECTED;
-            printf("! Failed to create property information because we were returned a NULL IPortableDeviceValues interface pointer, hr = 0x%lx\n",hr);
-        }
-    }
-
-    return hr;
-}
+//HRESULT GetRequiredPropertiesForFolder(
+//    PCWSTR                  pszParentObjectID,
+//    PCWSTR                  pszFolderName,
+//    IPortableDeviceValues** ppObjectProperties)
+//{
+//    CComPtr<IPortableDeviceValues> pObjectProperties;
+//
+//    // CoCreate an IPortableDeviceValues interface to hold the the object information
+//    HRESULT hr = CoCreateInstance(CLSID_PortableDeviceValues,
+//                                  NULL,
+//                                  CLSCTX_INPROC_SERVER,
+//                                  IID_PPV_ARGS(&pObjectProperties));
+//    if (SUCCEEDED(hr))
+//    {
+//        if (pObjectProperties != NULL)
+//        {
+//            // Set the WPD_OBJECT_PARENT_ID
+//            if (SUCCEEDED(hr))
+//            {
+//                hr = pObjectProperties->SetStringValue(WPD_OBJECT_PARENT_ID, pszParentObjectID);
+//                if (FAILED(hr))
+//                {
+//                    printf("! Failed to set WPD_OBJECT_PARENT_ID, hr = 0x%lx\n",hr);
+//                }
+//            }
+//
+//            // Set the WPD_OBJECT_NAME.
+//            if (SUCCEEDED(hr))
+//            {
+//                hr = pObjectProperties->SetStringValue(WPD_OBJECT_NAME, pszFolderName);
+//                if (FAILED(hr))
+//                {
+//                    printf("! Failed to set WPD_OBJECT_NAME, hr = 0x%lx\n",hr);
+//                }
+//            }
+//
+//            // Set the WPD_OBJECT_CONTENT_TYPE to WPD_CONTENT_TYPE_FOLDER because we are
+//            // creating contact content on the device.
+//            if (SUCCEEDED(hr))
+//            {
+//                hr = pObjectProperties->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, WPD_CONTENT_TYPE_FOLDER);
+//                if (FAILED(hr))
+//                {
+//                    printf("! Failed to set WPD_OBJECT_CONTENT_TYPE to WPD_CONTENT_TYPE_FOLDER, hr = 0x%lx\n",hr);
+//                }
+//            }
+//
+//            // If everything was successful above, QI for the IPortableDeviceValues to return
+//            // to the caller.  A temporary CComPtr IPortableDeviceValues was used for easy cleanup
+//            // in case of a failure.
+//            if (SUCCEEDED(hr))
+//            {
+//                hr = pObjectProperties->QueryInterface(IID_PPV_ARGS(ppObjectProperties));
+//                if (FAILED(hr))
+//                {
+//                    printf("! Failed to QueryInterface for IPortableDeviceValues, hr = 0x%lx\n",hr);
+//                }
+//            }
+//        }
+//        else
+//        {
+//            hr = E_UNEXPECTED;
+//            printf("! Failed to create property information because we were returned a NULL IPortableDeviceValues interface pointer, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    return hr;
+//}
 
 
 // Creates a properties-only object on the device which is
 // WPD_CONTENT_TYPE_FOLDER specific.
-void CreateFolderOnDevice(
-    IPortableDevice*    pDevice)
-{
-    if (pDevice == NULL)
-    {
-        printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
-    }
-
-    HRESULT                             hr = S_OK;
-    WCHAR                               szSelection[81]        = {0};
-    WCHAR                               szFolderName[81]        = {0};
-    CComPtr<IPortableDeviceValues>      pFinalObjectProperties;
-    CComPtr<IPortableDeviceContent>     pContent;
-
-    // Prompt user to enter an object identifier for the parent object on the device to transfer.
-    printf("Enter the identifier of the parent object which the folder will be created under.\n>");
-    hr = StringCbGetsW(szSelection,sizeof(szSelection));
-    if (FAILED(hr))
-    {
-        printf("An invalid object identifier was specified, aborting folder creation\n");
-    }
-
-    // Prompt user to enter an object identifier for the parent object on the device to transfer.
-    printf("Enter the name of the the folder to create.\n>");
-    hr = StringCbGetsW(szFolderName,sizeof(szFolderName));
-    if (FAILED(hr))
-    {
-        printf("An invalid folder name was specified, aborting folder creation\n");
-    }
-
-    // 1) Get an IPortableDeviceContent interface from the IPortableDevice interface to
-    // access the content-specific methods.
-    if (SUCCEEDED(hr))
-    {
-        hr = pDevice->Content(&pContent);
-        if (FAILED(hr))
-        {
-            printf("! Failed to get IPortableDeviceContent from IPortableDevice, hr = 0x%lx\n",hr);
-        }
-    }
-
-    // 2) Get the properties that describe the object being created on the device
-    if (SUCCEEDED(hr))
-    {
-        hr = GetRequiredPropertiesForFolder(szSelection,              // Parent to create the folder under
-                                            szFolderName,             // Folder Name
-                                            &pFinalObjectProperties);  // Returned properties describing the folder
-        if (FAILED(hr))
-        {
-            printf("! Failed to get required properties needed to transfer an image file to the device, hr = 0x%lx\n", hr);
-        }
-    }
-
-    // 3) Transfer the content to the device by creating a properties-only object
-    if (SUCCEEDED(hr))
-    {
-        PWSTR pszNewlyCreatedObject = NULL;
-        hr = pContent->CreateObjectWithPropertiesOnly(pFinalObjectProperties,    // Properties describing the object data
-                                                      &pszNewlyCreatedObject);
-        if (SUCCEEDED(hr))
-        {
-            printf("The folder was created on the device.\nThe newly created object's ID is '%ws'\n",pszNewlyCreatedObject);
-        }
-
-        if (FAILED(hr))
-        {
-            printf("! Failed to create a new folder on the device, hr = 0x%lx\n",hr);
-        }
-
-        // Free the object identifier string returned from CreateObjectWithPropertiesOnly
-        CoTaskMemFree(pszNewlyCreatedObject);
-        pszNewlyCreatedObject = NULL;
-    }
-
-}
+//void CreateFolderOnDevice(
+//    IPortableDevice*    pDevice)
+//{
+//    if (pDevice == NULL)
+//    {
+//        printf("! A NULL IPortableDevice interface pointer was received\n");
+//        return;
+//    }
+//
+//    HRESULT                             hr = S_OK;
+//    WCHAR                               szSelection[81]        = {0};
+//    WCHAR                               szFolderName[81]        = {0};
+//    CComPtr<IPortableDeviceValues>      pFinalObjectProperties;
+//    CComPtr<IPortableDeviceContent>     pContent;
+//
+//    // Prompt user to enter an object identifier for the parent object on the device to transfer.
+//    printf("Enter the identifier of the parent object which the folder will be created under.\n>");
+//    hr = StringCbGetsW(szSelection,sizeof(szSelection));
+//    if (FAILED(hr))
+//    {
+//        printf("An invalid object identifier was specified, aborting folder creation\n");
+//    }
+//
+//    // Prompt user to enter an object identifier for the parent object on the device to transfer.
+//    printf("Enter the name of the the folder to create.\n>");
+//    hr = StringCbGetsW(szFolderName,sizeof(szFolderName));
+//    if (FAILED(hr))
+//    {
+//        printf("An invalid folder name was specified, aborting folder creation\n");
+//    }
+//
+//    // 1) Get an IPortableDeviceContent interface from the IPortableDevice interface to
+//    // access the content-specific methods.
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = pDevice->Content(&pContent);
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get IPortableDeviceContent from IPortableDevice, hr = 0x%lx\n",hr);
+//        }
+//    }
+//
+//    // 2) Get the properties that describe the object being created on the device
+//    if (SUCCEEDED(hr))
+//    {
+//        hr = GetRequiredPropertiesForFolder(szSelection,              // Parent to create the folder under
+//                                            szFolderName,             // Folder Name
+//                                            &pFinalObjectProperties);  // Returned properties describing the folder
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to get required properties needed to transfer an image file to the device, hr = 0x%lx\n", hr);
+//        }
+//    }
+//
+//    // 3) Transfer the content to the device by creating a properties-only object
+//    if (SUCCEEDED(hr))
+//    {
+//        PWSTR pszNewlyCreatedObject = NULL;
+//        hr = pContent->CreateObjectWithPropertiesOnly(pFinalObjectProperties,    // Properties describing the object data
+//                                                      &pszNewlyCreatedObject);
+//        if (SUCCEEDED(hr))
+//        {
+//            printf("The folder was created on the device.\nThe newly created object's ID is '%ws'\n",pszNewlyCreatedObject);
+//        }
+//
+//        if (FAILED(hr))
+//        {
+//            printf("! Failed to create a new folder on the device, hr = 0x%lx\n",hr);
+//        }
+//
+//        // Free the object identifier string returned from CreateObjectWithPropertiesOnly
+//        CoTaskMemFree(pszNewlyCreatedObject);
+//        pszNewlyCreatedObject = NULL;
+//    }
+//
+//}

@@ -432,17 +432,18 @@ void GetClientInformation(
 // and to obtain the total number of devices found.  If 1 or more devices
 // are found, this function prompts the user to choose a device using
 // a zero-based index.
-void SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurrentDevice)
+BOOL SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurrentDevice)
 {
 	HRESULT                         hr = S_OK;
 	PWSTR*                          pPnpDeviceIDs = NULL;
 	CComPtr<IPortableDeviceManager> pPortableDeviceManager;
 	CComPtr<IPortableDeviceValues>  pClientInformation;
+	BOOL ok = FALSE;
 
 	if (ppDevice == NULL)
 	{
 		printf("! A NULL IPortableDevice interface pointer was received\n");
-		return;
+		return FALSE;
 	}
 
 	if (*ppDevice != NULL)
@@ -451,7 +452,7 @@ void SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurren
 		// IPortableDevice interface pointers.  This will force the caller
 		// to properly release the interface before obtaining a new one.
 		printf("! A non-NULL IPortableDevice interface pointer was received, please release this interface before obtaining a new one.\n");
-		return;
+		return FALSE;
 	}
 
 	// Fill out information about your application, so the device knows
@@ -518,6 +519,8 @@ void SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurren
 								*ppDevice = NULL;
 							}
 						}
+						else
+							ok = TRUE;
 					}
 					else
 					{
@@ -550,4 +553,5 @@ void SelectDevice(IPortableDevice** ppDevice, DWORD cPnPDeviceIDs, UINT uiCurren
 	}
 
 	// If no devices were found on the system, just exit this function.
+	return ok;
 }

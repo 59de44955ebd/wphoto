@@ -54,16 +54,17 @@ void RecursiveEnumerate(
 }
 
 
-void EnumerateAllContent(
+BOOL EnumerateAllContent(
     IPortableDevice* pDevice)
 {
     HRESULT                         hr = S_OK;
     CComPtr<IPortableDeviceContent> pContent;
+	BOOL ok = FALSE;
 
     if (pDevice == NULL)
     {
         printf("! A NULL IPortableDevice interface pointer was received\n");
-        return;
+        return FALSE;
     }
 
     // Get an IPortableDeviceContent interface from the IPortableDevice interface to
@@ -77,9 +78,11 @@ void EnumerateAllContent(
     // Enumerate content starting from the "DEVICE" object.
     if (SUCCEEDED(hr))
     {
+		ok = TRUE;
         printf("\n");
         RecursiveEnumerate(WPD_DEVICE_OBJECT_ID, pContent);
     }
+	return ok;
 }
 
 
